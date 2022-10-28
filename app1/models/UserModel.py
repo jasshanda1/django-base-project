@@ -63,6 +63,7 @@ class User(AbstractBaseUser, PermissionsMixin,TimeStampedModel):
     profile_status = models.IntegerField(blank=True, null=True)
     is_approved = models.BooleanField(blank=True, null=True, default=None)
     is_active = models.BooleanField(default=False)
+    otp_varification = models.BooleanField(blank=True, null=True, default=None)
     is_deleted = models.BooleanField(default=False)
     otp = models.CharField(max_length=6, blank=True, null=True)
     otp_send_time = models.DateTimeField(blank=True, null=True)
