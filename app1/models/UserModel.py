@@ -14,7 +14,7 @@ from django.conf import settings
 
 class UserManager(BaseUserManager):
 
-    def _create_user(self, email, password, **extra_fields):
+    def _create_user(self, email, password,**extra_fields):
         """
         Creates and saves a User with the given email,and password.
         """
@@ -37,6 +37,7 @@ class UserManager(BaseUserManager):
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
+        
 
         return self._create_user(email, password=password, **extra_fields)
 
@@ -54,6 +55,8 @@ class User(AbstractBaseUser, PermissionsMixin,TimeStampedModel):
     country_code = models.CharField(max_length=15, blank=True, null=True)
     phone_no = models.CharField(max_length=17, help_text='Contact phone number', blank=True, null=True)
     email = models.EmailField(max_length=254, blank=True, null=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     password = models.CharField(max_length=254, blank=True, null=True)
     gender = models.CharField(max_length=50, blank=True, null=True, help_text='Male, Female, Other')
     dob = models.CharField(max_length=10,blank=True, null=True)
@@ -71,8 +74,8 @@ class User(AbstractBaseUser, PermissionsMixin,TimeStampedModel):
     objects = UserManager()
 
     USERNAME_FIELD = 'user_name'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
-
+    REQUIRED_FIELDS = ['first_name', 'last_name','email']
+ 
     def __str__(self):
         return self.first_name
 

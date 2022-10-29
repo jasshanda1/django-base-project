@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from app1.models.UserModel import User
 from rest_framework.response import Response
-
+from django.contrib.auth.hashers import make_password
 
 
 class UserCreateUpdateSerializer(serializers.ModelSerializer):
@@ -11,8 +11,10 @@ class UserCreateUpdateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'phone_no', 'email', 'country_code', 'gender', 'address', 'longitude', 'latitude')       
-
+        fields = ('id','user_name','first_name', 'phone_no','password','email', 'country_code', 'gender', 'address', 'longitude', 'latitude')       
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
     def validate(self, data):
         
         email  = User.objects.filter(email=data.get('email'))
@@ -23,8 +25,7 @@ class UserCreateUpdateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('phone_no already exists')
         return data
 
-
-
+  
 
         
     
@@ -32,6 +33,8 @@ class UserCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         instance = User()
         instance.first_name = validated_data['first_name']
+        instance.user_name = validated_data['user_name']
+        instance.set_password(validated_data['password'])
         instance.email = validated_data['email']
         instance.country_code = validated_data['country_code']
         instance.phone_no = validated_data['phone_no']

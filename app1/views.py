@@ -8,6 +8,7 @@ import jwt
 from rest_framework.permissions import IsAdminUser
 from rest_framework.permissions import AllowAny
 from base import settings 
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.exceptions import ValidationError
 
 from rest_framework import status
@@ -27,35 +28,20 @@ class signup(APIView):
 
     
     
-class signin(APIView):
+class Login(APIView):
     serializer_class = UserLoginDetailSerializer
     permission_classes = (AllowAny,)
     def post(self,request,format = None):
         username = request.data['email']
         username = username.lower()
         password = request.data['password']
-
-    
         user = self.user_authenticate(username, password)
-        
         if user is not None:
-            if user.otp_varification is True:
-
                 login(request, user)
-
                 serializer = self.serializer_class(user)
-
-                payload = jwt_payload_handler(user)
-                token = jwt.encode(payload, settings.SECRET_KEY)
-
+                refresh = RefreshToken.for_user(user)
                 user_details = serializer.data
-                user_details['token'] = token
-                # User.objects.filter(pk=user.pk).update(auth_token=token)
-
-                # user_session = self.create_update_user_session(user, token, request)
-
-                return Response({"data": user_details,"code": status.HTTP_200_OK,"message": "LOGIN_SUCCESSFULLY"})
-            return Response({"data":None, "code":status.HTTP_400_BAD_REQUEST, "message":"your account is not varified. please firstly verify to your account please press below button send otp to verify your account."})
+                return Response({"data": user_details,"code": status.HTTP_200_OK,"message": "LOGIN_SUCCESSFULLY",'refresh': str(refresh),'access': str(refresh.access_token)})
         return Response({"data": None,"code": status.HTTP_400_BAD_REQUEST, "message": "INVALID_CREDENTIALS"})
 
     def user_authenticate(self,username,password):
